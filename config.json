@@ -1,0 +1,14 @@
+{
+  "routes": [
+    {
+      "path": "/api/users",
+      "target": "https://webhook.site/74535e5e-5a76-480e-a5bf-e94be5193782",
+      "method": "POST"
+    },
+    {
+      "path": "/api/products",
+      "target": "https://webhook.site/74535e5e-5a76-480e-a5bf-e94be5193782",
+      "method": "GET"
+    }
+  ]
+}
