@@ -8,6 +8,8 @@ import (
 	"net/http/httputil"
 	"net/url"
 	"os"
+
+	"github.com/gorilla/mux"
 )
 
 const PORT = 8080
@@ -39,11 +41,6 @@ func loadConfig(path string) (*Config, error) {
 
 func createHandler(route Route) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		if r.Method != route.Method {
-			http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
-			return
-		}
-
 		target, err := url.Parse(route.Target)
 		if err != nil {
 			http.Error(w, "Invalid Target URL", http.StatusInternalServerError)
@@ -54,10 +51,9 @@ func createHandler(route Route) http.HandlerFunc {
 			Director: func(req *http.Request) {
 				req.URL = target
 				req.Host = target.Host
-				req.Method = route.Method
 			},
 		}
-		log.Printf("Proxying request: %s %s -> %s", route.Method, r.URL.Path, target)
+		log.Printf("Proxying request: %s %s -> %s", r.Method, r.URL.Path, target)
 		proxy.ServeHTTP(w, r)
 	}
 }
@@ -68,10 +64,12 @@ func main() {
 		log.Fatalf("failed to load configuration: %v", err)
 	}
 
+	router := mux.NewRouter()
+
 	for _, route := range config.Routes {
-		http.HandleFunc(route.Path, createHandler(route))
+		go router.HandleFunc(route.Path, createHandler(route)).Methods(route.Method)
 	}
 
 	log.Printf("Starting API Gateway on PORT: %d", PORT)
-	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", PORT), nil))
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", PORT), router))
 }
