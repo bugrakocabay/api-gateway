@@ -40,21 +40,24 @@ func loadConfig(path string) (*Config, error) {
 }
 
 func createHandler(route Route) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		target, err := url.Parse(route.Target)
-		if err != nil {
+	target, err := url.Parse(route.Target)
+	if err != nil {
+		log.Printf("Invalid Target URL for route %s: %v", route.Path, err)
+		return func(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Invalid Target URL", http.StatusInternalServerError)
-			return
 		}
+	}
 
-		proxy := &httputil.ReverseProxy{
-			Director: func(req *http.Request) {
-				req.URL = target
-				req.Host = target.Host
-			},
-		}
-		log.Printf("Proxying request: %s %s -> %s", r.Method, r.URL.Path, target)
-		proxy.ServeHTTP(w, r)
+	proxy := httputil.NewSingleHostReverseProxy(target)
+
+	return func(w http.ResponseWriter, r *http.Request) {
+		done := make(chan bool)
+		go func() {
+			defer close(done)
+			log.Printf("Proxying request: %s %s -> %s", r.Method, r.URL.Path, target)
+			proxy.ServeHTTP(w, r)
+		}()
+		<-done
 	}
 }
 
@@ -67,7 +70,7 @@ func main() {
 	router := mux.NewRouter()
 
 	for _, route := range config.Routes {
-		go router.HandleFunc(route.Path, createHandler(route)).Methods(route.Method)
+		router.HandleFunc(route.Path, createHandler(route)).Methods(route.Method)
 	}
 
 	log.Printf("Starting API Gateway on PORT: %d", PORT)
