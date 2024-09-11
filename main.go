@@ -1,13 +1,18 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
 	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
 	"github.com/gorilla/mux"
 )
@@ -27,13 +32,25 @@ type Config struct {
 func loadConfig(path string) (*Config, error) {
 	file, err := os.ReadFile(path)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to read config file: %w", err)
 	}
 
 	var config Config
 	err = json.Unmarshal(file, &config)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to parse config file: %w", err)
+	}
+
+	for i, route := range config.Routes {
+		if route.Path == "" {
+			return nil, fmt.Errorf("route %d has empty path", i)
+		}
+		if route.Target == "" {
+			return nil, fmt.Errorf("route %d has empty target", i)
+		}
+		if route.Method == "" {
+			return nil, fmt.Errorf("route %d has empty method", i)
+		}
 	}
 
 	return &config, nil
@@ -73,6 +90,29 @@ func main() {
 		router.HandleFunc(route.Path, createHandler(route)).Methods(route.Method)
 	}
 
-	log.Printf("Starting API Gateway on PORT: %d", PORT)
-	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", PORT), router))
+	srv := &http.Server{
+		Addr:    fmt.Sprintf(":%d", PORT),
+		Handler: router,
+	}
+
+	go func() {
+		log.Printf("Starting API Gateway on PORT: %d", PORT)
+		if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			log.Fatalf("listen: %s\n", err)
+		}
+	}()
+
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	<-quit
+	log.Println("Shutting down server...")
+
+	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+	defer cancel()
+
+	if err := srv.Shutdown(ctx); err != nil {
+		log.Fatalf("Server forced to shutdown: %v", err)
+	}
+
+	log.Println("Server exiting")
 }
