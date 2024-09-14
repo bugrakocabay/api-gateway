@@ -1,4 +1,4 @@
-module api-gateway
+module github.com/bugrakocabay/api-gateway
 
 go 1.21
 
