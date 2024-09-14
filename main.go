@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 	"log/slog"
+	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
@@ -24,21 +25,21 @@ func main() {
 
 	srv := server.Start(cfg)
 
-	waitForShutdown()
+	gracefulShutdown(srv, 15*time.Second)
+}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+func gracefulShutdown(srv *http.Server, timeout time.Duration) {
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	<-quit
+	slog.Info("Shutting down server...")
+
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
 	if err := srv.Shutdown(ctx); err != nil {
 		log.Fatalf("Server forced to shutdown: %v", err)
 	}
 
-	slog.Info("Server exiting")
-}
-
-func waitForShutdown() {
-	quit := make(chan os.Signal, 1)
-	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
-	<-quit
-	slog.Info("Shutting down server...")
+	slog.Info("Shutdown complete")
 }
