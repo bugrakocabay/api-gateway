@@ -18,6 +18,7 @@ const PORT = 8080
 // Start initializes and starts the HTTP server.
 func Start(cfg *config.Config) *http.Server {
 	router := mux.NewRouter()
+	router.Use(middlewares.InjectRequestID)
 	router.Use(middlewares.Logger)
 
 	for _, route := range cfg.Routes {
