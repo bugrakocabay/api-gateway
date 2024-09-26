@@ -27,7 +27,7 @@ func Logger(next http.Handler) http.Handler {
 		duration := time.Since(start)
 
 		// Log the response body and status code
-		slog.Info("Outgoing response", "method", r.Method, "path", r.URL.Path, "status", rec.statusCode, "duration", duration, "body", rec.body.String())
+		slog.Info("Outgoing response", "method", r.Method, "path", r.URL.Path, "status", rec.statusCode, "duration", duration.Milliseconds(), "body", rec.body.String())
 	})
 }
 

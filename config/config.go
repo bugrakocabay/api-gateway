@@ -11,11 +11,12 @@ type Route struct {
 	Path   string `json:"path"`
 	Target string `json:"target"`
 	Method string `json:"method"`
+	Limit  int64  `json:"limit"`
 }
 
 // Config holds the application's route configurations.
 type Config struct {
-	Routes []Route `json:"routes"`
+	Routes []*Route `json:"routes"`
 }
 
 // LoadConfig reads and parses the configuration file.
