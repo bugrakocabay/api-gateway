@@ -6,7 +6,7 @@ import (
 	"net/http/httputil"
 	"net/url"
 
-	"github.com/bugrakocabay/api-gateway/config"
+	"github.com/bugrakocabay/api-gateway/internal/config"
 )
 
 // CreateHandler returns an HTTP handler for a given route.

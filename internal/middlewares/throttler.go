@@ -9,7 +9,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/bugrakocabay/api-gateway/config"
+	"github.com/bugrakocabay/api-gateway/internal/config"
 )
 
 // LocalThrottler is responsible for rate limiting based on IP and endpoint.

@@ -7,9 +7,9 @@ import (
 	"log/slog"
 	"net/http"
 
-	"github.com/bugrakocabay/api-gateway/config"
-	"github.com/bugrakocabay/api-gateway/middlewares"
-	"github.com/bugrakocabay/api-gateway/routes"
+	"github.com/bugrakocabay/api-gateway/internal/config"
+	"github.com/bugrakocabay/api-gateway/internal/middlewares"
+	"github.com/bugrakocabay/api-gateway/internal/routes"
 	"github.com/gorilla/mux"
 )
 

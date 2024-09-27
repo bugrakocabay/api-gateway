@@ -10,15 +10,16 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/bugrakocabay/api-gateway/config"
-	"github.com/bugrakocabay/api-gateway/server"
+	"github.com/bugrakocabay/api-gateway/internal/config"
+	"github.com/bugrakocabay/api-gateway/internal/server"
 )
+
+const ConfigPath = "API_GATEWAY_CONFIG_PATH"
 
 func main() {
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
 	slog.SetDefault(logger)
-
-	cfg, err := config.LoadConfig("config.json")
+	cfg, err := config.LoadConfig(os.Getenv(ConfigPath))
 	if err != nil {
 		log.Fatalf("Failed to load configuration: %v", err)
 	}
