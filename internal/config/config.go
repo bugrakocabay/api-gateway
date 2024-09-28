@@ -8,10 +8,11 @@ import (
 
 // Route defines the structure for route configuration.
 type Route struct {
-	Path   string  `json:"path"`
-	Target *Target `json:"target"`
-	Method string  `json:"method"`
-	Limit  int64   `json:"limit"`
+	Path        string   `json:"path"`
+	Target      *Target  `json:"target"`
+	Method      string   `json:"method"`
+	QueryParams []string `json:"query_params"`
+	Limit       int64    `json:"limit"`
 }
 
 // Target defines the structure for target endpoint configuration.
