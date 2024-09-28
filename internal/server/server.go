@@ -20,7 +20,7 @@ func Start(cfg *config.Config) *http.Server {
 	router := mux.NewRouter()
 	localThrottler := middlewares.NewLocalThrottler(cfg.Routes)
 	router.Use(localThrottler.LocalThrottlerMiddleware)
-	router.Use(middlewares.InjectRequestID)
+	router.Use(middlewares.InjectTraceID)
 	router.Use(middlewares.Logger)
 
 	for _, route := range cfg.Routes {
