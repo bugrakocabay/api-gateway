@@ -8,12 +8,12 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/bugrakocabay/api-gateway/internal/config"
+	"github.com/bugrakocabay/bifrost/internal/config"
 	"github.com/gorilla/mux"
 )
 
 // CreateHandler returns an HTTP handler for a given route.
-// This function sets up the reverse proxy logic for the API Gateway. It precomputes
+// This function sets up the reverse proxy logic for Bifrost. It precomputes
 // the allowed query parameters for the route and creates an HTTP handler function
 // that processes incoming requests, modifies them according to the route configuration,
 // and forwards them to the appropriate target URL using a reverse proxy.

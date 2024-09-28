@@ -7,9 +7,9 @@ import (
 	"log/slog"
 	"net/http"
 
-	"github.com/bugrakocabay/api-gateway/internal/config"
-	"github.com/bugrakocabay/api-gateway/internal/middlewares"
-	"github.com/bugrakocabay/api-gateway/internal/routes"
+	"github.com/bugrakocabay/bifrost/internal/config"
+	"github.com/bugrakocabay/bifrost/internal/middlewares"
+	"github.com/bugrakocabay/bifrost/internal/routes"
 	"github.com/gorilla/mux"
 )
 
@@ -34,7 +34,7 @@ func Start(cfg *config.Config) *http.Server {
 	}
 
 	go func() {
-		slog.Info("Starting API Gateway", "port", PORT)
+		slog.Info("Starting Bifrost", "port", PORT)
 		if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			log.Fatalf("Server error: %s", err)
 		}

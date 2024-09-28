@@ -1,4 +1,4 @@
-module github.com/bugrakocabay/api-gateway
+module github.com/bugrakocabay/bifrost
 
 go 1.21
 

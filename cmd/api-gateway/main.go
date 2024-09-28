@@ -10,11 +10,11 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/bugrakocabay/api-gateway/internal/config"
-	"github.com/bugrakocabay/api-gateway/internal/server"
+	"github.com/bugrakocabay/bifrost/internal/config"
+	"github.com/bugrakocabay/bifrost/internal/server"
 )
 
-const ConfigPath = "API_GATEWAY_CONFIG_PATH"
+const ConfigPath = "BIFROST_CONFIG_PATH"
 
 func main() {
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
