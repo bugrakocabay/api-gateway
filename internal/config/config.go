@@ -8,10 +8,17 @@ import (
 
 // Route defines the structure for route configuration.
 type Route struct {
+	Path   string  `json:"path"`
+	Target *Target `json:"target"`
+	Method string  `json:"method"`
+	Limit  int64   `json:"limit"`
+}
+
+// Target defines the structure for target endpoint configuration.
+type Target struct {
+	Host   string `json:"host"`
 	Path   string `json:"path"`
-	Target string `json:"target"`
 	Method string `json:"method"`
-	Limit  int64  `json:"limit"`
 }
 
 // Config holds the application's route configurations.
@@ -32,7 +39,7 @@ func LoadConfig(path string) (*Config, error) {
 	}
 
 	for i, route := range cfg.Routes {
-		if route.Path == "" || route.Target == "" || route.Method == "" {
+		if route.Path == "" || route.Target == nil || route.Method == "" {
 			return nil, fmt.Errorf("route %d has incomplete configuration", i)
 		}
 	}

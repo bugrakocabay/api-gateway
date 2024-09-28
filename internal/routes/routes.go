@@ -15,16 +15,9 @@ import (
 func CreateHandler(route config.Route) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
-
-		targetURLStr := route.Target
-		for key, value := range vars {
-			placeholder := "{" + key + "}"
-			targetURLStr = strings.ReplaceAll(targetURLStr, placeholder, value)
-		}
-
-		targetURL, err := url.Parse(targetURLStr)
+		targetURL, err := parseTargetURL(vars, route.Target)
 		if err != nil {
-			slog.Error("Invalid Target URL after variable substitution", "error", err)
+			slog.Error("Error occurred while parsing target URL ", "error", err)
 			http.Error(w, "Invalid Target URL", http.StatusInternalServerError)
 			return
 		}
@@ -35,6 +28,7 @@ func CreateHandler(route config.Route) http.HandlerFunc {
 				req.URL.Host = targetURL.Host
 				req.URL.Path = targetURL.Path
 				req.Host = targetURL.Host
+				req.Method = route.Target.Method
 
 				req.URL.RawQuery = r.URL.RawQuery
 
@@ -47,4 +41,20 @@ func CreateHandler(route config.Route) http.HandlerFunc {
 
 		proxy.ServeHTTP(w, r)
 	}
+}
+
+func parseTargetURL(vars map[string]string, target *config.Target) (*url.URL, error) {
+	targetPath := target.Path
+	targetHost := target.Host
+	for key, value := range vars {
+		placeholder := "{" + key + "}"
+		targetPath = strings.ReplaceAll(targetPath, placeholder, value)
+	}
+
+	targetURL, err := url.Parse(targetHost + targetPath)
+	if err != nil {
+		return nil, err
+	}
+
+	return targetURL, nil
 }
