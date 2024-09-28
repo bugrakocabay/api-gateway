@@ -1,0 +1,1 @@
+Inspired by Norse mythology, Bifröst acts as the bridge between services, much like the mythical rainbow bridge that connected the realm of the gods (Asgard) with the world of mortals (Midgard). 
