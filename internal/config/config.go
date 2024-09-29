@@ -2,25 +2,14 @@ package config
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 )
 
-// Route defines the structure for route configuration.
-type Route struct {
-	Path        string   `json:"path"`
-	Target      *Target  `json:"target"`
-	Method      string   `json:"method"`
-	QueryParams []string `json:"query_params"`
-	Limit       int64    `json:"limit"`
-}
-
-// Target defines the structure for target endpoint configuration.
-type Target struct {
-	Host   string `json:"host"`
-	Path   string `json:"path"`
-	Method string `json:"method"`
-}
+var (
+	noRouteDefinedError = errors.New("no route is defined")
+)
 
 // Config holds the application's route configurations.
 type Config struct {
@@ -39,11 +28,30 @@ func LoadConfig(path string) (*Config, error) {
 		return nil, fmt.Errorf("failed to parse config file: %w", err)
 	}
 
-	for i, route := range cfg.Routes {
-		if route.Path == "" || route.Target == nil || route.Method == "" {
-			return nil, fmt.Errorf("route %d has incomplete configuration", i)
-		}
+	err = cfg.validateAll()
+	if err != nil {
+		return nil, err
 	}
 
 	return &cfg, nil
+}
+
+func (c *Config) validateAll() error {
+	if len(c.Routes) == 0 {
+		return noRouteDefinedError
+	}
+
+	for _, r := range c.Routes {
+		err := r.validateRoute()
+		if err != nil {
+			return err
+		}
+
+		err = r.Target.validateTarget()
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
